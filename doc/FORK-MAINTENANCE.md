@@ -7,7 +7,7 @@
 | 名称 | 地址或用途 |
 | --- | --- |
 | `upstream` | 官方仓库 `https://github.com/paperclipai/paperclip.git` |
-| `origin` | 我的 fork `https://github.com/LiuGuoJiang/paperclip.git` |
+| `origin` | 我的 fork `git@github.com:LiuGuoJiang/paperclip.git`（SSH） |
 | `master` | 只同步官方代码，尽量保持与 `upstream/master` 一致 |
 | `custom` | 我的长期维护分支；自己的改动和这份手册放在这里 |
 | 功能分支 | 从 `custom` 建立，用于单项修改和自仓库 PR |
@@ -40,7 +40,24 @@ git merge --ff-only upstream/master
 git push origin master
 ```
 
-`--ff-only` 只允许沿官方历史向前移动。如果失败，先用 `git log --oneline --left-right master...upstream/master` 查明分叉原因，不要强制推送。若终端提示没有 GitHub 凭据，先配置 GitHub CLI／Git Credential Manager 或 SSH，再重试推送；也可以在 GitHub fork 页面使用 **Sync fork**，随后执行 `git fetch origin` 校验。首次本机配置好认证后，上述 `git push` 就可直接使用。
+`--ff-only` 只允许沿官方历史向前移动。如果失败，先用 `git log --oneline --left-right master...upstream/master` 查明分叉原因，不要强制推送。`origin` 已使用 SSH；首次推送前，须把本机公钥添加到 GitHub 账户（见下节）。也可以在 GitHub fork 页面使用 **Sync fork**，随后执行 `git fetch origin` 校验。
+
+## 本机 GitHub SSH 设置（2026-10-13）
+
+已在本机生成独立的 Ed25519 密钥：
+
+- 私钥：`~/.ssh/id_ed25519_github_paperclip`；只留在本机，不上传或分享。
+- 公钥：`~/.ssh/id_ed25519_github_paperclip.pub`；上传到 GitHub 的 **Settings → SSH and GPG keys → New SSH key**，用途选择 **Authentication Key**。
+- 公钥指纹：`SHA256:QNYPfx/yuQaG109FG+PoTlV/wYsCmb3Sjlazlrk0p+g`。
+
+这把密钥按我的选择没有设置口令，方便自动推送；请保护本机账户及私钥文件。`~/.ssh/config` 已把 `github.com` 指向这把密钥，仓库 `origin` 也已切换到 SSH。添加公钥后验证：
+
+```sh
+ssh -T git@github.com
+git ls-remote origin HEAD
+```
+
+第一次连接可能会询问是否信任 GitHub 主机；应先比对 GitHub 官方公布的主机密钥指纹，再接受。`ssh -T` 显示认证成功后，后续 `git push origin custom` 即可使用 SSH。
 
 再将官方更新合入自己的维护分支：
 
