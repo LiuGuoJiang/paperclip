@@ -90,4 +90,3 @@ git rev-list --left-right --count origin/master...upstream/master
 ```
 
 最后一条命令输出 `0  0` 表示两个远端跟踪分支在本地已一致。它们是 `fetch` 时记录的快照；要确认 GitHub 上的实时状态，先再次 `git fetch --all --prune`。如果想看 `custom` 比官方多出哪些提交，运行 `git log --oneline master..custom`。
-
